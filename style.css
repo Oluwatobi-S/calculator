@@ -1,0 +1,110 @@
+@font-face {
+	font-family: "fredericka-the-great";
+    src: url("assets/fonts/fredericka-the-great.regular.ttf");
+}
+
+html, body {
+    height: 100%;
+    width: 100%;
+    margin: 0;
+}
+
+body {
+    position: absolute;
+    top: 0;
+    background-color: #8c8c8c;
+	background: url("https://cdn.pixabay.com/photo/2015/09/24/12/52/silver-955496_1280.jpg");
+	background-repeat: no-repeat;
+	background-size: cover;
+}
+
+h1 {
+    text-align: center;
+    font-family: "fredericka-the-great";
+	font-size: 3.1rem;
+    font-weight: normal;
+    color: #333333;
+    margin-bottom: 50px;
+}
+
+#calculator {
+    width: 300px;
+    box-shadow: 3px 3px 7px rgba(0, 0, 0, 0.8), -1px 3px 5px rgba(0, 0, 0, 0.8);
+    margin: auto;
+}
+
+#calculator, .calculation, button {
+    background-color: #262626;
+}
+
+#display {
+    height: 150px;
+    display: grid;
+    align-items: center;
+}
+
+.calculation {
+    text-align: end;
+    padding: 11px 15px;
+    font-family: 'Open Sans', sans-serif;
+}
+
+.calculation, .number, .plus-minus-btn, .dot-btn {
+    color: #ffffff;
+}
+
+.operation {
+    color: #8c8c8c;
+    font-size: 1.1rem;
+}
+
+.result {
+    font-size: 3rem;
+}
+
+#buttons {
+    display: grid;
+    grid-template-columns: repeat(4, 25%);
+    grid-template-rows: repeat(5, 75px);
+}
+
+button {
+    margin: 5px;
+    border: 1px #2c2c2c solid;
+    box-shadow: 1px 1px 5px rgba(0, 0, 0, 0.6);
+    outline: none;
+    cursor: pointer;
+    font-family: 'Open Sans', sans-serif;
+    font-size: 1.5rem;
+}
+
+button:active {
+    background-color: #212121;
+    transform: translateY(1px);
+}
+
+.delete-btn {
+    color: #e2725b;
+}
+
+.percentage-btn {
+    color: #fdfd96;
+}
+
+.operator-btn {
+    color: #ffc40c;
+}
+
+.equal-btn {
+    color: #9acd32;
+}
+
+a {
+    display: block;
+    margin-top: 70px;
+	text-align: center;
+	text-decoration: none;
+    font-size: 1.1rem;
+    font-family: 'PT Serif', serif;
+    color: #333333;
+}
