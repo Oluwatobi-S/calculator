@@ -23,9 +23,10 @@ h1 {
     font-family: "fredericka-the-great";
 	font-size: 3.1rem;
     font-weight: normal;
-    color: #333333;
     margin-bottom: 50px;
 }
+
+h1, a {color: #333333;}
 
 #calculator {
     width: 300px;
@@ -46,8 +47,9 @@ h1 {
 .calculation {
     text-align: end;
     padding: 11px 15px;
-    font-family: 'Open Sans', sans-serif;
 }
+
+.calculation, button {font-family: 'Open Sans', sans-serif;}
 
 .calculation, .number, .plus-minus-btn, .dot-btn {
     color: #ffffff;
@@ -55,6 +57,7 @@ h1 {
 
 .operation {
     overflow: auto;
+    white-space: nowrap;
     color: #8c8c8c;
     font-size: 1.1rem;
 }
@@ -75,9 +78,7 @@ h1 {
     background: #4d4d4d; 
 }
 
-.result {
-    font-size: 3rem;
-}
+.result {font-size: 3rem;}
 
 #buttons {
     display: grid;
@@ -91,35 +92,21 @@ button {
     box-shadow: 1px 1px 5px rgba(0, 0, 0, 0.6);
     outline: none;
     cursor: pointer;
-    font-family: 'Open Sans', sans-serif;
     font-size: 1.5rem;
 }
 
-button:active {
+button:active, .keyboard-pressed {
     background-color: #212121;
     transform: translateY(1px);
 }
 
-.keyboard-pressed {
-    background-color: #212121;
-    transform: translateY(1px);
-}
+.delete-btn {color: #e2725b;}
 
-.delete-btn {
-    color: #e2725b;
-}
+.percentage-btn {color: #fdfd96;}
 
-.percentage-btn {
-    color: #fdfd96;
-}
+.operator-btn {color: #ffc40c;}
 
-.operator-btn {
-    color: #ffc40c;
-}
-
-.equal-btn {
-    color: #9acd32;
-}
+.equal-btn {color: #9acd32;}
 
 a {
     display: block;
@@ -128,5 +115,4 @@ a {
 	text-decoration: none;
     font-size: 1.1rem;
     font-family: 'PT Serif', serif;
-    color: #333333;
 }
