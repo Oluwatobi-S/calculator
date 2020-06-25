@@ -54,8 +54,25 @@ h1 {
 }
 
 .operation {
+    overflow: auto;
     color: #8c8c8c;
     font-size: 1.1rem;
+}
+
+.operation::-webkit-scrollbar {
+    width: 1rem;
+}
+
+.operation::-webkit-scrollbar-track {
+    background-color: #1a1a1a; 
+}
+
+.operation::-webkit-scrollbar-thumb {
+    background: #595959; 
+}
+
+.operation::-webkit-scrollbar-thumb:hover {
+    background: #4d4d4d; 
 }
 
 .result {
@@ -79,6 +96,11 @@ button {
 }
 
 button:active {
+    background-color: #212121;
+    transform: translateY(1px);
+}
+
+.keyboard-pressed {
     background-color: #212121;
     transform: translateY(1px);
 }
