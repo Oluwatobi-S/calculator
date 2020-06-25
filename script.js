@@ -144,15 +144,21 @@ function displayNumber() {
         displayResultNode.innerText = clickedNumber;
     }
     if (displayResultNode.innerText.length < 9) {
-        if ((displayResultNode.innerText === '0') && (clickedNumber === 0)) {
+        if ((displayResultNode.innerText === '-') && (operatorBtn)) {
+            operatorBtn = false;
+            displayResultNode.innerText += clickedNumber;
+        } else if ((displayResultNode.innerText === '0') && (clickedNumber === 0)) {
             operatorBtn = false;
             displayResultNode.innerText = 0;
         } else if (((displayResultNode.innerText === '0') || (operatorBtn)) && (/[^0]|[^\.]/.test(clickedNumber))) {
             operatorBtn = false;
             displayResultNode.innerText = clickedNumber;
-        } else if (/[1-9]|\./.test(displayResultNode.innerText) && (!operatorBtn)) {
+        } else if (((displayResultNode.innerText === '-0')) && (/[^0]/.test(clickedNumber))) {
+            operatorBtn = false;
+            displayResultNode.innerText = '-' + clickedNumber;
+        } else if (/[1-9]|\./.test(displayResultNode.innerText) && !operatorBtn) {
             displayResultNode.innerText += clickedNumber;
-        } else if (/[1-9]/.test(displayResultNode.innerText) && (operatorBtn)) {
+        } else if (/[1-9]/.test(displayResultNode.innerText) && operatorBtn) {
             displayResultNode.innerText = clickedNumber;
         } else if (displayResultNode.innerText === '0.') {
             displayResultNode.innerText += clickedNumber;
@@ -162,6 +168,11 @@ function displayNumber() {
 }
 
 function addOrRemoveMinus() {
+    if (operatorBtn) {
+        displayResultNode.innerText = '-';
+        newOperand = Number('-0');
+        return;
+    }
     let splitNumOnDisStrIntoArr = displayResultNode.innerText.split('');
     (!displayResultNode.innerText.includes('-')) ?
     splitNumOnDisStrIntoArr.unshift('-') : splitNumOnDisStrIntoArr.shift();
@@ -197,7 +208,7 @@ function operate() {
     if (equalBtn) {
         operation = storedOperand + clickedOperator + newOperand + '=';
         if (/\u{00F7}/u.test(clickedOperator)) {
-            if (newOperand === 0 || '.') {
+            if (newOperand === (0 || '.')) {
                 clearAll();
                 displayResultNode.innerText = 'Impossible';
                 return;
@@ -214,7 +225,7 @@ function operate() {
     } else {
         operation += newOperand + clickedOperator;
         if (/\u{00F7}/u.test(storedOperator)) {
-            if (newOperand === 0 || '.') {
+            if (newOperand === (0 || '.')) {
                 clearAll();
                 displayResultNode.innerText = 'Impossible';
                 return;
