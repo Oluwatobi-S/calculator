@@ -12,14 +12,19 @@ const equalBtnNode = document.querySelector('.equal-btn');
 let operatorBtn = false;
 let numberBtn = false;
 let equalBtn = true;
+let dotBtn = false;
 let keyBoard = false;
 let operation = '';
 let pressedKey = '';
-let storedOperator = '';
 let clickedOperator = '';
-let storedOperand = 0;
+let firstStoredOperator = '';
+let secondStoredOperator = '';
+let thirdStoredOperator = '';
 let newOperand = 0;
-let result = 0;
+let firstStoredOperand = 0;
+let secondStoredOperand;
+let thirdStoredOperand;
+let displayedResult = 0;
 
 clearAllBtnNode.addEventListener('click', clearAll);
 clearLastDigitBtnNode.addEventListener('click', clearLastDigit);
@@ -34,18 +39,22 @@ document.addEventListener('keyup', removeKBPClass);
 
 function clearAll() {
     if (keyBoard) {clearAllBtnNode.classList.add('keyboard-pressed');}
-
-    numberBtn = false;
     operatorBtn = false;
-    keyBoard = false;
+    numberBtn = false;
     equalBtn = true;
-    newOperand = 0;
-    storedOperand = 0;
-    clickedOperator = '';
-    storedOperator = '';
+    dotBtn = false;
+    keyBoard = false;
     operation = '';
-    result = 0;
     pressedKey = '';
+    clickedOperator = '';
+    firstStoredOperator = '';
+    secondStoredOperator = '';
+    thirdStoredOperator = '';
+    newOperand = 0;
+    firstStoredOperand = 0;
+    secondStoredOperand = undefined;
+    thirdStoredOperand = undefined;
+    displayedResult = 0;
     displayOperationNode.innerText = '';
     displayResultNode.innerText = '0';
 }
@@ -54,56 +63,84 @@ function clearLastDigit() {
     if (keyBoard) {clearLastDigitBtnNode.classList.add('keyboard-pressed');}
 
     if (/[1-9]/.test(displayResultNode.innerText)) {
-        let splitNumOnDisStrIntoArr = displayResultNode.innerText.split('');
-        splitNumOnDisStrIntoArr.pop();
-        if (/[^\d]/.test(splitNumOnDisStrIntoArr[0]) && splitNumOnDisStrIntoArr.length === 1) {
-            splitNumOnDisStrIntoArr[0] = 0;
-        } else if (splitNumOnDisStrIntoArr.length === 0) {
-            splitNumOnDisStrIntoArr[0] = 0;
+        let splitNumStrOnDisIntoArr = displayResultNode.innerText.split('');
+        splitNumStrOnDisIntoArr.pop();
+        if (/[^\d]/.test(splitNumStrOnDisIntoArr[0]) && splitNumStrOnDisIntoArr.length === 1) {
+            splitNumStrOnDisIntoArr[0] = 0;
+        } else if (splitNumStrOnDisIntoArr.length === 0) {
+            splitNumStrOnDisIntoArr[0] = 0;
         }
-        let newNumOnDis = splitNumOnDisStrIntoArr.join('');
-        displayResultNode.innerText = newNumOnDis;
-        newOperand = Number(newNumOnDis);
+        let newNumStrOnDis = splitNumStrOnDisIntoArr.join('');
+        displayResultNode.innerText = newNumStrOnDis;
+        newOperand = Number(newNumStrOnDis);
     }
 }
 
 function solvePercentage() {
     if (keyBoard) {percentageBtnNode.classList.add('keyboard-pressed');}
 
-    if (result >= 1e+90) {
+    if (displayedResult >= 1e+90) {
         displayResultNode.innerText = 'Error';
         return;
     }
     if (!operatorBtn) {
-        result = newOperand / 100;
-        displayResultNode.innerText = result;
-        newOperand = result;
+        displayedResult = newOperand / 100;
+        displayResultNode.innerText = displayedResult;
+        newOperand = displayedResult;
     }
     keyBoard = false;
 }
 
 function displayOperation() {
+    if (dotBtn) {return;}
+
     for(i = 0; i < operatorBtnNodes.length; i++) {
         if (operatorBtnNodes[i].innerText === pressedKey) {
             operatorBtnNodes[i].classList.add('keyboard-pressed');
         }
     }
-    if (result >= 1e+90) {
+    if (displayedResult >= 1e+90) {
         displayResultNode.innerText = 'Error';
         return;
     }
     operatorBtn = true;
-    storedOperator = clickedOperator;
 
+    if (secondStoredOperand && secondStoredOperator && numberBtn) {
+        thirdStoredOperand = newOperand;
+        // console.log('Third Operand = ' + thirdStoredOperand);
+    }
+    if (firstStoredOperand && !secondStoredOperand && numberBtn) {
+        secondStoredOperand = newOperand;
+    }
     if (keyBoard) {
         clickedOperator = pressedKey;
         keyBoard = false;
-    } else {
-        clickedOperator = this.innerText;
+    } else {clickedOperator = this.innerText;}
+
+    if (numberBtn) {
+        if (!thirdStoredOperator && secondStoredOperator) {
+            thirdStoredOperator = clickedOperator;
+        }
+        if (!secondStoredOperator && firstStoredOperator) {
+            secondStoredOperator = clickedOperator;
+        }
+        if (!firstStoredOperator) {
+            firstStoredOperator = clickedOperator;
+        }
+    } else if (!numberBtn) {
+        if (thirdStoredOperator && secondStoredOperator) {
+            thirdStoredOperator = clickedOperator;
+        }
+        if (secondStoredOperator && firstStoredOperator) {
+            secondStoredOperator = clickedOperator;
+        }
+        if (firstStoredOperator) {
+            firstStoredOperator = clickedOperator;
+        }
     }
     if (/=/.test(displayOperationNode.innerText)) {
         numberBtn = false;
-        displayOperationNode.innerText = storedOperand + clickedOperator;
+        displayOperationNode.innerText = firstStoredOperand + clickedOperator;
         return;
     }
     if (displayOperationNode.innerText && numberBtn) {
@@ -113,8 +150,8 @@ function displayOperation() {
         return;
     }
     if (numberBtn) {
-        storedOperand = newOperand;
-        operation += storedOperand + clickedOperator;
+        firstStoredOperand = newOperand;
+        operation += firstStoredOperand + clickedOperator;
         displayOperationNode.innerText = operation;
     } else if (!numberBtn) {
         let splitOprtnStrIntoArr = displayOperationNode.innerText.split('');
@@ -128,29 +165,35 @@ function displayOperation() {
 
 function displayNumber() {
     numberBtn = true;
+    dotBtn = false;
     let clickedNumber;
     if (keyBoard) {
         clickedNumber = Number(pressedKey);
         keyBoard = false;
-    } else {
-        clickedNumber = Number(this.innerText);
-    }
+    } else {clickedNumber = Number(this.innerText);}
+
     if (/=/.test(displayOperationNode.innerText)) {
         displayOperationNode.innerText = '';
         operation = '';
-        storedOperand = 0;
+        displayedResult = 0;
+        firstStoredOperand = 0;
+        secondStoredOperand = undefined;
+        thirdStoredOperand = undefined;
+        firstStoredOperator = '';
+        secondStoredOperator = '';
+        thirdStoredOperator = '';
     }
     if ((displayResultNode.innerText.length === 9) && operatorBtn) {
         displayResultNode.innerText = clickedNumber;
     }
     if (displayResultNode.innerText.length < 9) {
-        if ((displayResultNode.innerText === '-') && (operatorBtn)) {
+        if ((displayResultNode.innerText === '-') && operatorBtn) {
             operatorBtn = false;
             displayResultNode.innerText += clickedNumber;
         } else if ((displayResultNode.innerText === '0') && (clickedNumber === 0)) {
             operatorBtn = false;
             displayResultNode.innerText = 0;
-        } else if (((displayResultNode.innerText === '0') || (operatorBtn)) && (/[^0]|[^\.]/.test(clickedNumber))) {
+        } else if (((displayResultNode.innerText === '0') || operatorBtn) && (/[^0]|[^\.]/.test(clickedNumber))) {
             operatorBtn = false;
             displayResultNode.innerText = clickedNumber;
         } else if (((displayResultNode.innerText === '-0')) && (/[^0]/.test(clickedNumber))) {
@@ -173,16 +216,17 @@ function addOrRemoveMinus() {
         newOperand = Number('-0');
         return;
     }
-    let splitNumOnDisStrIntoArr = displayResultNode.innerText.split('');
+    let splitNumStrOnDisIntoArr = displayResultNode.innerText.split('');
     (!displayResultNode.innerText.includes('-')) ?
-    splitNumOnDisStrIntoArr.unshift('-') : splitNumOnDisStrIntoArr.shift();
+    splitNumStrOnDisIntoArr.unshift('-') : splitNumStrOnDisIntoArr.shift();
 
-    let newNumOnDis = splitNumOnDisStrIntoArr.join('');
-    displayResultNode.innerText = newNumOnDis;
-    newOperand = Number(newNumOnDis);
+    let newNumStrOnDis = splitNumStrOnDisIntoArr.join('');
+    displayResultNode.innerText = newNumStrOnDis;
+    newOperand = Number(newNumStrOnDis);
 }
 
 function addDot() {
+    dotBtn = true;
     if (keyBoard) {dotBtnNode.classList.add('keyboard-pressed');}
 
     if (/\d/.test(displayResultNode.innerText) && (operatorBtn)) {
@@ -199,57 +243,192 @@ function addDot() {
 }
 
 function operate() {
+    if (dotBtn) {return;}
+    
     if (keyBoard) {equalBtnNode.classList.add('keyboard-pressed');}
 
-    if (result >= 1e+90) {
+    if (displayedResult >= 1e+90) {
         displayResultNode.innerText = 'Error';
         return;
     }
     if (equalBtn) {
-        operation = storedOperand + clickedOperator + newOperand + '=';
-        if (/\u{00F7}/u.test(clickedOperator)) {
-            if (newOperand === (0 || '.')) {
+        // console.log('Equal Used!!!!');
+        operation += newOperand + '=';
+
+        if (!secondStoredOperand) {
+            if (clickedOperator === '÷' && newOperand === 0) {
                 clearAll();
-                displayResultNode.innerText = 'Impossible';
+                displayResultNode.innerText = `Can't ÷ 0`;
                 return;
-            } else {
-                result = divide(storedOperand, newOperand);
             }
-        } else if (clickedOperator === 'x') {
-            result = multiply(storedOperand, newOperand);
-        } else if (clickedOperator === '-') {
-            result = subtract(storedOperand, newOperand);
-        } else if (clickedOperator === '+') {
-            result = add(storedOperand, newOperand);
+            switch (clickedOperator) {
+                case '÷': displayedResult = calculate(divide, firstStoredOperand, newOperand); break;
+                case 'x': displayedResult = calculate(multiply, firstStoredOperand, newOperand); break;
+                case '-': displayedResult = calculate(subtract, firstStoredOperand, newOperand); break;
+                case '+': displayedResult = calculate(add, firstStoredOperand, newOperand); break;
+            }
+        } else {
+            if (/÷|x/.test(secondStoredOperator)) {
+                // console.log('===Equal with SecondOp / or * Used===');
+                if (secondStoredOperator === '÷' && newOperand === 0) {
+                    clearAll();
+                    displayResultNode.innerText = `Can't ÷ 0`;
+                    return;
+                }
+                switch (secondStoredOperator) {
+                    case '÷': iniResult  = calculate(divide, secondStoredOperand, newOperand); break;
+                    case 'x': iniResult = calculate(multiply, secondStoredOperand, newOperand); break;
+                }
+                switch (firstStoredOperator) {
+                    case '-': displayedResult  = calculate(subtract, firstStoredOperand, iniResult); break;
+                    case '+': displayedResult = calculate(add, firstStoredOperand, iniResult); break;
+                }
+            } else if (/÷|x/.test(firstStoredOperator)) {
+                // console.log('===Equal with firstOp / or * Used===');
+                if (firstStoredOperator === '÷' && secondStoredOperand === 0) {
+                    clearAll();
+                    displayResultNode.innerText = `Can't ÷ 0`;
+                    return;
+                }
+                switch (firstStoredOperator) {
+                    case '÷': iniResult  = calculate(divide, firstStoredOperand, secondStoredOperand); break;
+                    case 'x': iniResult = calculate(multiply, firstStoredOperand, secondStoredOperand); break;
+                }
+                switch (secondStoredOperator) {
+                    case '-': displayedResult  = calculate(subtract, iniResult, newOperand); break;
+                    case '+': displayedResult = calculate(add, iniResult, newOperand); break;
+                }
+            }
         }
     } else {
+        // console.log("Logged This!!!!");
         operation += newOperand + clickedOperator;
-        if (/\u{00F7}/u.test(storedOperator)) {
-            if (newOperand === (0 || '.')) {
+        let iniResult;
+    
+        if (/÷|x/.test(firstStoredOperator)) {
+            // console.log('===First@/* Second@-+ Used===');
+            if (firstStoredOperator === '÷' && secondStoredOperand === 0) {
                 clearAll();
-                displayResultNode.innerText = 'Impossible';
+                displayResultNode.innerText = `Can't ÷ 0`;
                 return;
-            } else {
-                result = divide(storedOperand, newOperand);
             }
-        } else if (storedOperator === 'x') {
-            result = multiply(storedOperand, newOperand);
-        } else if (storedOperator === '-') {
-            result = subtract(storedOperand, newOperand);
-        } else if (storedOperator === '+') {
-            result = add(storedOperand, newOperand);
+            switch (firstStoredOperator) {
+                case '÷': displayedResult  = calculate(divide, firstStoredOperand, secondStoredOperand); break;
+                case 'x': displayedResult = calculate(multiply, firstStoredOperand, secondStoredOperand); break;
+            }
+            displayResultNode.innerText = displayedResult;
+            firstStoredOperand = displayedResult;
+            secondStoredOperand = undefined;
+            thirdStoredOperand = undefined;
+            firstStoredOperator = clickedOperator;
+            secondStoredOperator = '';
+            thirdStoredOperator = '';
+        } else if (/\-|\+/.test(firstStoredOperator) && /÷|x/.test(secondStoredOperator) && /÷|x/.test(thirdStoredOperator)) {
+            // console.log('===First@-+ Second@/* Third@/* Used===');
+            if (secondStoredOperator === '÷' && thirdStoredOperand === 0) {
+                clearAll();
+                displayResultNode.innerText = `Can't ÷ 0`;
+                return;
+            }
+            switch (secondStoredOperator) {
+                case '÷': iniResult  = calculate(divide, secondStoredOperand, thirdStoredOperand); break;
+                case 'x': iniResult = calculate(multiply, secondStoredOperand, thirdStoredOperand); break;
+            }
+            switch (firstStoredOperator) {
+                case '-': displayedResult  = calculate(subtract, firstStoredOperand, iniResult); break;
+                case '+': displayedResult = calculate(add, firstStoredOperand, iniResult); break;
+            }
+            // console.log('iniResult = ' + iniResult);
+            displayResultNode.innerText = displayedResult;
+            secondStoredOperand = iniResult;
+            thirdStoredOperand = undefined;
+            secondStoredOperator = clickedOperator;
+            thirdStoredOperator = '';
+        } else if (/\-|\+/.test(firstStoredOperator) && /÷|x/.test(secondStoredOperator) && /\-|\+/.test(thirdStoredOperator)) {
+            // console.log('===First@-+ Second@/* Third@-+ Used===');
+            if (secondStoredOperator === '÷' && thirdStoredOperand === 0) {
+                clearAll();
+                displayResultNode.innerText = `Can't ÷ 0`;
+                return;
+            }
+            // console.log('secondStoredOperand = ' + secondStoredOperand);
+            switch (secondStoredOperator) {
+                case '÷': iniResult  = calculate(divide, secondStoredOperand, thirdStoredOperand); break;
+                case 'x': iniResult = calculate(multiply, secondStoredOperand, thirdStoredOperand); break;
+            }
+            switch (firstStoredOperator) {
+                case '-': displayedResult  = calculate(subtract, firstStoredOperand, iniResult); break;
+                case '+': displayedResult = calculate(add, firstStoredOperand, iniResult); break;
+            }
+            displayResultNode.innerText = displayedResult;
+            firstStoredOperand = displayedResult;
+            secondStoredOperand = undefined;
+            thirdStoredOperand = undefined;
+            firstStoredOperator = clickedOperator;
+            secondStoredOperator = '';
+            thirdStoredOperator = '';
+        } else if (
+            (/\-|\+/.test(firstStoredOperator) && /\-|\+/.test(secondStoredOperator)) || 
+            (/÷|x/.test(firstStoredOperator) && /÷|x/.test(secondStoredOperator))) {
+                // console.log('===First@-+or/* Second@/* Third-+or/* Used===');
+                if (firstStoredOperator === '÷' && secondStoredOperand === 0) {
+                    clearAll();
+                    displayResultNode.innerText = `Can't ÷ 0`;
+                    return;
+                }
+            switch (firstStoredOperator) {
+                case '÷': iniResult  = calculate(divide, firstStoredOperand, secondStoredOperand); break;
+                case 'x': iniResult = calculate(multiply, firstStoredOperand, secondStoredOperand); break;
+                case '-': iniResult  = calculate(subtract, firstStoredOperand, secondStoredOperand); break;
+                case '+': iniResult = calculate(add, firstStoredOperand, secondStoredOperand); break;
+            }
+            if (thirdStoredOperand) {
+                if (secondStoredOperator === '÷' && thirdStoredOperand === 0) {
+                    clearAll();
+                    displayResultNode.innerText = `Can't ÷ 0`;
+                    return;
+                }
+                switch (secondStoredOperator) {
+                    case '÷': displayedResult  = calculate(divide, iniResult, thirdStoredOperand); break;
+                    case 'x': displayedResult = calculate(multiply, iniResult, thirdStoredOperand); break;
+                    case '-': displayedResult  = calculate(subtract, iniResult, thirdStoredOperand); break;
+                    case '+': displayedResult = calculate(add, iniResult, thirdStoredOperand); break;
+                }
+            } else {displayedResult = iniResult;}
+
+            displayResultNode.innerText = displayedResult;
+            firstStoredOperand = displayedResult;
+            secondStoredOperand = undefined;
+            thirdStoredOperand = undefined;
+            firstStoredOperator = clickedOperator;
+            secondStoredOperator = '';
+            thirdStoredOperator = '';
         }
+        // console.log('Result is = ' + displayedResult);
+        // console.log('clickedOperator = ' + clickedOperator);
+        // console.log('firstStoredOperator = ' + firstStoredOperator);
+        // console.log('secondStoredOperator = ' + secondStoredOperator);
+        // console.log('thirdStoredOperator = ' + thirdStoredOperator);
+        // console.log('firstStoredOperand = ' + firstStoredOperand);
+        // console.log('secondStoredOperand = ' + secondStoredOperand);
+        // console.log('thirdStoredOperand is = ' + thirdStoredOperand);
     }
     
     displayOperationNode.innerText = operation;
     
-    (result.toString().length < 8) ?
-        displayResultNode.innerText = result :
-        displayResultNode.innerText = result.toPrecision(4);
+    (displayedResult.toString().length < 8) ?
+        displayResultNode.innerText = displayedResult :
+        displayResultNode.innerText = displayedResult.toPrecision(4);
 
-    storedOperand = result;
     operatorBtn = true;
     equalBtn = true;
+}
+
+function calculate(operator, num1, num2) {
+    // console.log('operator: ' + operator);
+    // console.log('num1: '+ num1);
+    // console.log('num2: ' + num2);
+    return operator(num1, num2);
 }
 
 function getPressedKey(pressed) {
